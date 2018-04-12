@@ -127,7 +127,11 @@ end
 local function getToStringResultSafely(t, mt)
   local __tostring = type(mt) == 'table' and rawget(mt, '__tostring')
   local str, ok
-  if type(__tostring) == 'function' then
+
+  -- we don't want to call __tostring if it's set to inspect.inspect
+  -- or else we'll enter an infinite recursion
+  if type(__tostring) == 'function' and
+     __tostring ~= inspect.inspect then
     ok, str = pcall(__tostring, t)
     str = ok and str or 'error: ' .. tostring(str)
   end
