@@ -131,10 +131,13 @@ local function getToStringResultSafely(t, mt)
   -- we don't want to call __tostring if it's set to inspect.inspect
   -- or else we'll enter an infinite recursion
   if type(__tostring) == 'function' and
-     __tostring ~= inspect.inspect then
+     __tostring ~= inspect.inspect and
+     t ~= inspect.GUARD  then
+    inspect.GUARD = t
     ok, str = pcall(__tostring, t)
     str = ok and str or 'error: ' .. tostring(str)
   end
+  inspect.GUARD = nil
   if type(str) == 'string' and #str > 0 then return str end
 end
 
